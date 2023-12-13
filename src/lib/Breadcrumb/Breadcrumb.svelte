@@ -37,6 +37,7 @@
     <ol class="flex space-x-1">
       <!-- Always display the root '/' and make it clickable -->
       <li class="flex items-center">
+        <!-- svelte-ignore a11y-invalid-attribute -->
         <a href="javascript:void(0);" on:click={() => navigateTo(0)}
           class="text-gray-800 font-medium text-sm leading-tight rounded-sm py-2 px-3 bg-gray-50">
           /
@@ -46,6 +47,7 @@
         <li class="flex items-center">
           {#if index < pathSegments.length - 1}
             <!-- Non-terminal segment -->
+            <!-- svelte-ignore a11y-invalid-attribute -->
             <a href="javascript:void(0);" on:click={() => navigateTo(index + 1 )}
               class=" text-gray-800 font-medium text-sm leading-tight rounded-sm py-2 px-3 bg-gray-50">
               {segment}
