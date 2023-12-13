@@ -48,10 +48,49 @@
   /**
    * @param {Iterable<number>} buffer
    */
- 
+  function arrayBufferToBase64(buffer) {
+    return btoa(
+      new Uint8Array(buffer)
+        .reduce((data, byte) => data + String.fromCharCode(byte), '')
+    );
+  }
+
+  async function loadImagePreview() {
+    if (!isDir && isImageFile(name)) {
+      try {
+        const imageBytes = await invoke('thumbnail_generate', { path });
+
+       
+        previewSrc = `data:image/png;base64,${arrayBufferToBase64(imageBytes)}`;
+      } catch (error) {
+        console.error('Error loading image preview:', error);
+      }
+    }
+  }
 
 
-  
+  onMount(() => {
+    if (!isDir) {
+        const observer = new IntersectionObserver(entries => {
+      // Logic for when the image enters the viewport
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          // Load the image only if it is in the viewport
+          loadImagePreview();
+          // Stop observing the image if it's been loaded
+          observer.unobserve(imageElement);
+        }
+      });
+    });
+
+    observer.observe(imageElement);
+
+    return () => {
+      observer.disconnect();
+    };
+    }
+  });
+
   
 
 
@@ -72,8 +111,9 @@
     {:else if isImageFile(name) }
 
   
-    
-      <Icon icon="arcticons:image-resizer" />
+      <!-- Image preview -->
+      <img  src={previewSrc} alt={name} class="thumbnail" />
+      <!-- <Icon icon="arcticons:image-resizer" /> -->
     
     {:else}
       <Icon icon="arcticons:file" width="60" />
