@@ -9,6 +9,7 @@
   import { onMount } from "svelte";
   import Controls from "../Controls/controls.svelte";
   import Item from "../Item/item.svelte";
+  import Breadcrumb from "../Breadcrumb/Breadcrumb.svelte";
 
   onMount(async () => {
     navigateToDirectory("/");
@@ -45,10 +46,13 @@
     navigateToDirectory("/");
   }
 </script>
+<Breadcrumb  on:navigate={event => navigateToDirectory(event.detail)} />
+
 
 {#if $isInitialView}
   <div class="flex flex-col items-center justify-center mt-4"></div>
 {:else}
+
   <!-- File Browser Grid View -->
   <div class="file-browser mt-4 p-4 bg-white">
     <div class="flex justify-between items-center"></div>

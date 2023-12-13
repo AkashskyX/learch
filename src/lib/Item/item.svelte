@@ -3,6 +3,23 @@
     import { invoke } from "@tauri-apps/api/tauri";
     import Icon from "@iconify/svelte";
 
+
+    /**
+   * Truncates a filename while preserving the file extension.
+   * @param {string} filename The full filename to truncate.
+   * @param {number} maxLength The maximum length of the truncated filename.
+   * @returns {string} The truncated filename with the extension.
+   */
+  function truncateFilename(filename, maxLength) {
+    // Get the file extension
+    const extension = filename.substring(filename.lastIndexOf('.') + 1);
+    // Truncate the filename without the extension if it's too long
+    if (filename.length > maxLength) {
+      return filename.substring(0, maxLength - extension.length - 3) + '...' + extension;
+    }
+    return filename;
+  }
+
     /**
    * @type {Element}
    */
@@ -78,7 +95,7 @@
     {:else}
       <Icon icon="arcticons:file" width="60" />
     {/if}
-    <span class="mt-2 text-sm text-center font-thin font-mono">{name}</span>
+    <span class="mt-2 text-sm text-center font-thin font-mono">{truncateFilename(name, 30)}</span>
   </div>
   
   <style>
