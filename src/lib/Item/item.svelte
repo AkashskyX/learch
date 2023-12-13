@@ -91,6 +91,8 @@
     }
   });
 
+  
+
 
 
     
@@ -99,17 +101,18 @@
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div
+  bind:this={imageElement}
     class="directory-item flex flex-col items-center w-36 m-3 hover:bg-gray-50 rounded-sm cursor-pointer"
     on:click={handleClick}
   >
     {#if isDir}
       <Icon icon="arcticons:folder" width="60" />
 
-    {:else if isImageFile(name)}
+    {:else if isImageFile(name) }
 
   
       <!-- Image preview -->
-      <img bind:this={imageElement} src={previewSrc} alt={name} class="thumbnail" />
+      <img  src={previewSrc} alt={name} class="thumbnail" />
       <!-- <Icon icon="arcticons:image-resizer" /> -->
     
     {:else}
