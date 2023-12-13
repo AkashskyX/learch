@@ -46,7 +46,7 @@
     });
 </script>
 
-<main class="h-screen">
+<main class="h-screen font-mono">
 
 
 
@@ -55,9 +55,15 @@
 
 
 
-    <!-- <Disk/> -->
+    <div class=" flex flex-row">
 
-    <FileBrowser/>
+   
+
+    <Disk/>
+
+   
+
+</div>
     
 
 

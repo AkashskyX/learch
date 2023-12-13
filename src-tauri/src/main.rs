@@ -4,6 +4,7 @@
 
 use sysinfo::{System, SystemExt, DiskExt};
 use std::str::from_utf8;
+use open;
 
 
 #[tauri::command]
@@ -31,6 +32,11 @@ fn get_disk_info() -> String {
 }
 
 
+#[tauri::command]
+fn open_file(path: String) -> Result<(), String> {
+    open::that(&path).map_err(|e| e.to_string())?;
+    Ok(())
+}
 
 #[tauri::command]
 fn list_files_in_directory(path: String) -> Result<Vec<(String, bool)>, String> {
@@ -65,7 +71,7 @@ fn list_files_in_directory(path: String) -> Result<Vec<(String, bool)>, String> 
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_disk_info , list_files_in_directory])
+        .invoke_handler(tauri::generate_handler![get_disk_info , list_files_in_directory , open_file])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -4,3 +4,9 @@ import { writable, get } from 'svelte/store';
 
 
 export let directoryContents = writable([]);
+
+// In your stores.js or similar file
+export const isInitialView = writable(true);
+
+
+export let atRoot =  writable(true)

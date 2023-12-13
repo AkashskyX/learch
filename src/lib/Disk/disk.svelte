@@ -2,6 +2,7 @@
           import { invoke } from '@tauri-apps/api/tauri';
   import { onMount } from 'svelte';
   import DiskComponent from './disk_component.svelte';
+  import { push } from 'svelte-spa-router';
 
       let diskInfo = '';
       /**
@@ -50,7 +51,9 @@ onMount(async () => {
 
 
 
-<div class="flex flex-col  items-start">
+<!-- svelte-ignore a11y-no-static-element-interactions -->
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<div class="flex flex-col  items-start" on:click={()=>{push("/explore")}}>
 
     <h1 class="px-2 mb-3"> disk </h1>
 
