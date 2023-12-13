@@ -1,44 +1,61 @@
 <script>
     import { createEventDispatcher } from 'svelte';
-    import { currentPath } from '../../stores'; // Import the store or reactive variable
+    import { currentPath } from '../../stores'; // Assuming this is a store that holds the current path
+  
+    const dispatch = createEventDispatcher();
 
     /**
    * @type {any[]}
    */
-    let pathSegments = [];
-    const dispatch = createEventDispatcher();
-
+    let pathSegments;
+  
     $: {
         pathSegments = $currentPath.split('/').filter(Boolean);
-        console.log(pathSegments, "path: ", $currentPath);
+        console.log('currentPath updated:', $currentPath);
+        console.log('pathSegments:', pathSegments);
     }
-
+  
     /**
-   * @param {number} segmentIndex
+   * @param {number} index
    */
-    function navigateTo(segmentIndex) {
-        const newPath = '/' + pathSegments.slice(0, segmentIndex + 1).join('/');
-        dispatch('navigate', newPath);
-    }
-</script>
+   function navigateTo(index) {
+  let newPath;
+  if (index === 0) {
+    // If the root '/' is clicked, navigate to root
+    newPath = '/';
+  } else {
+    // For other segments, construct the path to navigate to
+    newPath = '/' + pathSegments.slice(0, index).join('/');
+  }
 
-<nav aria-label="Breadcrumb" class="  py-2 px-4 inline-flex items-center space-x-2">
-    <ol class="flex ">
+  console.log("navigating to ", newPath);
+  dispatch('navigate', newPath);
+}
+  </script>
+  
+  <nav aria-label="Breadcrumb" class=" rounded-sm py-2 px-4 inline-flex items-center space-x-2">
+    <ol class="flex space-x-1">
+      <!-- Always display the root '/' and make it clickable -->
+      <li class="flex items-center">
+        <a href="javascript:void(0);" on:click={() => navigateTo(0)}
+          class="text-gray-800 font-medium text-sm leading-tight rounded-sm py-2 px-3 bg-gray-50">
+          /
+        </a>
+      </li>
       {#each pathSegments as segment, index}
         <li class="flex items-center">
           {#if index < pathSegments.length - 1}
             <!-- Non-terminal segment -->
-            <!-- svelte-ignore a11y-invalid-attribute -->
-            <a href="javascript:void(0);" on:click={() => navigateTo(index)}
-               class="bg-white text-gray-800 font-medium text-sm leading-tight rounded-sm py-2 px-3 hover:bg-gray-100">
+            <a href="javascript:void(0);" on:click={() => navigateTo(index + 1 )}
+              class=" text-gray-800 font-medium text-sm leading-tight rounded-sm py-2 px-3 bg-gray-50">
               {segment}
-            </a> 
+            </a>
             <!-- Separator -->
             <span class="text-gray-500 mx-1">/</span>
           {:else}
             <!-- Terminal segment (current directory) -->
             <span class="bg-gray-100 text-gray-800 font-medium text-sm leading-tight rounded-sm py-2 px-3">
-              {segment}
+              {segment } 
             </span>
           {/if}
         </li>
@@ -46,7 +63,3 @@
     </ol>
   </nav>
   
-  
-<style>
-    /* Styles remain the same */
-</style>
