@@ -4,9 +4,11 @@
   import Icon from "@iconify/svelte";
 
   import { currentPath, directoryContents, isInitialView } from "../../stores";
+  
   import { push } from "svelte-spa-router";
   import { onMount } from "svelte";
   import Controls from "../Controls/controls.svelte";
+  import Item from "../Item/item.svelte";
 
   onMount(async () => {
     navigateToDirectory("/");
@@ -52,22 +54,15 @@
     <div class="flex justify-between items-center"></div>
     <div class="grid grid-cols-6 gap-0">
       {#each $directoryContents as [name, isDir]}
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <!-- svelte-ignore a11y-no-static-element-interactions -->
-        <div
-          class="directory-item flex flex-col items-center w-36 m-3 hover:bg-gray-50 rounded-sm cursor-pointer"
-          on:click={() =>
-            isDir && navigateToDirectory(`${$currentPath}/${name}`)}
-        >
-          {#if isDir}
-            <Icon icon="arcticons:folder" width="60" />
-          {:else}
-            <Icon icon="arcticons:file" width="60" />
-          {/if}
-          <span class="mt-2 text-sm text-center font-thin font-mono"
-            >{name}</span
-          >
-        </div>
+
+      <Item
+      {name}
+      {isDir}
+      path={`${$currentPath}/${name}`}
+      on:navigate={event => navigateToDirectory(event.detail)}
+    />
+       
+       
       {/each}
     </div>
   </div>

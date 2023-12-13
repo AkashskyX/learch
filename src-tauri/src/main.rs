@@ -5,7 +5,7 @@
 use sysinfo::{System, SystemExt, DiskExt};
 use std::str::from_utf8;
 use open;
-
+use image;
 
 #[tauri::command]
 fn get_disk_info() -> String {
@@ -63,15 +63,24 @@ fn list_files_in_directory(path: String) -> Result<Vec<(String, bool)>, String> 
     }
 }
 
-
-
-
+#[tauri::command]
+fn read_binary(path: String) -> Result<Vec<u8>, String> {
+    std::fs::read(&path).map_err(|e| e.to_string())
+}
+#[tauri::command]
+fn thumbnail_generate(path: String) -> Result<Vec<u8>, String> {
+    let image = image::open(&path).map_err(|e| e.to_string())?;
+    let thumbnail = image.thumbnail(128, 128); // Creates a 128x128 thumbnail
+    let mut buffer = Vec::new();
+    thumbnail.write_to(&mut buffer, image::ImageOutputFormat::Png).map_err(|e| e.to_string())?;
+    Ok(buffer)
+}
 
 
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_disk_info , list_files_in_directory , open_file])
+        .invoke_handler(tauri::generate_handler![get_disk_info , read_binary , list_files_in_directory , open_file  , thumbnail_generate])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
