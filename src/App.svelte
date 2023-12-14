@@ -7,18 +7,26 @@
 
 
 
-  async function initializeSearchIndex() {
-  try {
-    await invoke('create_search_index');
-    console.log('Search index created successfully.');
-  } catch (error) {
-    console.error('Error creating search index:', error);
+  let rootPath = '/Users/sky/Documents/GitHub/learch';
+
+
+
+  async function createAndIndexFiles() {
+    try {
+      await invoke('create_and_index', { rootPath: rootPath });
+      console.log('Files indexed successfully.');
+    } catch (error) {
+      console.error('Error indexing files:', error);
+    }
   }
-}
+
+
+
+
 
 
 onMount(()=>{
-  initializeSearchIndex();
+  createAndIndexFiles()
 })
 
 

@@ -20,6 +20,7 @@ sysinfo = "0.23"
 open = "1.0"
 image = "0.23"
 tantivy = "0.21.1"
+walkdir = "2.4.0"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem

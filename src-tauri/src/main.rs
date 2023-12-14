@@ -5,7 +5,7 @@
 use sysinfo::{System, SystemExt, DiskExt};
 use std::str::from_utf8;
 use open;
-use image;
+use tauri::{AppHandle, Manager};
 mod search_index;
 
 #[tauri::command]
@@ -32,12 +32,6 @@ fn get_disk_info() -> String {
     disk_info
 }
 
-
-#[tauri::command]
-fn create_search_index() -> Result<(), String> {
-    search_index::create_index().map_err(|e| e.to_string())?;
-    Ok(())
-}
 
 
 
@@ -75,24 +69,21 @@ fn list_files_in_directory(path: String) -> Result<Vec<(String, bool)>, String> 
     }
 }
 
+
+
+
 #[tauri::command]
-fn read_binary(path: String) -> Result<Vec<u8>, String> {
-    std::fs::read(&path).map_err(|e| e.to_string())
-}
-#[tauri::command]
-fn thumbnail_generate(path: String) -> Result<Vec<u8>, String> {
-    let image = image::open(&path).map_err(|e| e.to_string())?;
-    let thumbnail = image.thumbnail(128, 128); // Creates a 128x128 thumbnail
-    let mut buffer = Vec::new();
-    thumbnail.write_to(&mut buffer, image::ImageOutputFormat::Png).map_err(|e| e.to_string())?;
-    Ok(buffer)
+async fn create_and_index(root_path: String , app: tauri::AppHandle) -> Result<(), String> {
+    let index = search_index::create_index().map_err(|e| e.to_string())?;
+        // Call the function to add documents to the index
+    search_index::index_files(app, &index, &root_path).map_err(|e| e.to_string())
 }
 
 
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_disk_info , read_binary , list_files_in_directory , open_file  , thumbnail_generate , create_search_index])
+        .invoke_handler(tauri::generate_handler![get_disk_info  , list_files_in_directory , open_file  , create_and_index])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

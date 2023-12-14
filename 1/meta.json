@@ -3,7 +3,23 @@
     "docstore_compression": "lz4",
     "docstore_blocksize": 16384
   },
-  "segments": [],
+  "segments": [
+    {
+      "segment_id": "2f044aeb-de0f-444d-a615-3c6bf318770a",
+      "max_doc": 7481,
+      "deletes": null
+    },
+    {
+      "segment_id": "cc8f8490-37af-4897-9e28-b5f482268a36",
+      "max_doc": 7398,
+      "deletes": null
+    },
+    {
+      "segment_id": "a29385ac-58e0-4f59-873f-6e64e800fa50",
+      "max_doc": 7244,
+      "deletes": null
+    }
+  ],
   "schema": [
     {
       "name": "title",
@@ -42,5 +58,5 @@
       }
     }
   ],
-  "opstamp": 0
+  "opstamp": 22126
 }
