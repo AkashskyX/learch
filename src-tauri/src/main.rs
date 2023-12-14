@@ -6,6 +6,7 @@ use sysinfo::{System, SystemExt, DiskExt};
 use std::str::from_utf8;
 use open;
 use image;
+mod search_index;
 
 #[tauri::command]
 fn get_disk_info() -> String {
@@ -30,6 +31,17 @@ fn get_disk_info() -> String {
 
     disk_info
 }
+
+
+#[tauri::command]
+fn create_search_index() -> Result<(), String> {
+    search_index::create_index().map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+
+
+
 
 
 #[tauri::command]
@@ -80,7 +92,7 @@ fn thumbnail_generate(path: String) -> Result<Vec<u8>, String> {
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_disk_info , read_binary , list_files_in_directory , open_file  , thumbnail_generate])
+        .invoke_handler(tauri::generate_handler![get_disk_info , read_binary , list_files_in_directory , open_file  , thumbnail_generate , create_search_index])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
