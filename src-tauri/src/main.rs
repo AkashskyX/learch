@@ -2,11 +2,15 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use sysinfo::{System, SystemExt, DiskExt};
 use std::str::from_utf8;
+
+use sysinfo::{System, SystemExt, DiskExt};
+use tantivy::{schema::*, Index, Document, Result as TantivyResult};
+
 use open;
-use tauri::{AppHandle, Manager};
 mod search_index;
+
+
 
 #[tauri::command]
 fn get_disk_info() -> String {
@@ -32,6 +36,19 @@ fn get_disk_info() -> String {
     disk_info
 }
 
+
+#[tauri::command]
+fn get_index_metadata(index_path: String) -> Result<String, String> {
+    search_index::get_index_operational_data(index_path).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn search_files(query: String, index_path: String) -> Result<Vec<String>, String> {
+    let index = Index::open_in_dir(&index_path).map_err(|e| e.to_string())?;
+
+    search_index::index_search(&index, &query)
+        .map_err(|e| e.to_string())
+}
 
 
 
@@ -83,7 +100,7 @@ async fn create_and_index(root_path: String , app: tauri::AppHandle) -> Result<(
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_disk_info  , list_files_in_directory , open_file  , create_and_index])
+        .invoke_handler(tauri::generate_handler![get_disk_info  , search_files , list_files_in_directory , open_file  , get_index_metadata,  create_and_index])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

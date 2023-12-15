@@ -10,3 +10,5 @@ export const isInitialView = writable(true);
 
 
 export let atRoot =  writable(true)
+
+export let index_path =  writable("/Users/sky/Documents/GitHub/learch/1")

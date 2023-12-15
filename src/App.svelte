@@ -3,11 +3,30 @@
   import FileBrowser from "./lib/FileBrowser/file_browser.svelte";
   import Main from "./lib/main.svelte";
   import { invoke } from '@tauri-apps/api/tauri';
-  import { onMount } from 'svelte';
+  import { listen } from '@tauri-apps/api/event';
+  import { appWindow } from '@tauri-apps/api/window';
 
 
 
-  let rootPath = '/Users/sky/Documents/GitHub/learch';
+  import { onDestroy, onMount } from 'svelte';
+
+
+  onMount(()=>{
+  createAndIndexFiles()
+ 
+   
+
+})
+
+
+
+
+
+  let progress = '';
+ 
+
+
+  let rootPath = '/Users/sky/Documents/GitHub';
 
 
 
@@ -25,9 +44,6 @@
 
 
 
-onMount(()=>{
-  createAndIndexFiles()
-})
 
 
 
@@ -40,6 +56,8 @@ onMount(()=>{
 
 <body class="h">
   <Router {routes}/>
+
+  
 </body>
 
 
