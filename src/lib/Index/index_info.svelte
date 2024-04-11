@@ -2,10 +2,15 @@
   import { invoke } from "@tauri-apps/api/tauri";
   import { onMount } from "svelte";
 
+  import {index_path} from '../../stores'
+  import IndexProgress from "../Progress/Index_progress.svelte";
+
+
     let segments = 0;
     let totalDocuments = 0;
     let sizeBytes = 0;
     let indexPath = '';
+    let isIndexing = false;
     /**
    * @type {string}
    */
@@ -16,11 +21,35 @@
    */
     let formattedSize;
 
+
+    function reindex() {
+    isIndexing = true; 
+  }
+
+
+    async function deleteIndex() {
+    try {
+      await invoke('delete_index_command');
+      console.log('Index deleted');
+      fetchIndexMetadata()
+    } catch (error) {
+      console.error('Failed to delete index:', error);
+    }
+  }
+
    
   
     async function fetchIndexMetadata() {
+
+      segments = 0;
+    totalDocuments = 0;
+    sizeBytes = 0;
       try {
-         path = "/Users/sky/Documents/GitHub/learch/1";
+
+         path = await invoke("get_index_path")
+
+         $index_path = path
+        // path = "/Users/sky/Documents/GitHub/learch/1";
         console.log("Sending", path);
   
         const metadata = await invoke('get_index_metadata', { indexPath: path });
@@ -73,15 +102,27 @@ fetchIndexMetadata()
   </script>
   
   <div>
-    <div class="bg-white border border-gray-300 rounded-lg p-4 ">
+    <div class="bg-white border border-gray-300 rounded-lg p-4 relative">
         <h2 class="text-xl font-semibold mb-2">Index Information</h2>
+        <button 
+          class="absolute top-3 right-3 text-lg" 
+          on:click={fetchIndexMetadata} 
+          title="Refresh Metadata"
+        >
+          🔄
+        </button>
         <p><span class="font-semibold">Number of Segments:</span> {segments}</p>
         <p><span class="font-semibold">Total Documents:</span> {totalDocuments}</p>
-        <p><span class="font-semibold">Size (bytes):</span> {formattedSize}</p>
+        <p><span class="font-semibold">Size:</span> {formattedSize}</p>
         <p><span class="font-semibold">Index Path:</span> {path}</p>
-      
-      </div>
-      
-   
-  </div>
   
+        <button class="shadow-none border-gray-900 mt-5 " on:click={deleteIndex}>Delete</button>
+
+        <button class="shadow-none border-gray-900 mt-5 " on:click={reindex}>re-index</button>
+    </div>
+    {#if isIndexing}
+    <IndexProgress/>
+      
+    {/if}
+
+  </div>

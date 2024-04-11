@@ -1,6 +1,7 @@
 <script>
   import Router from 'svelte-spa-router'
   import FileBrowser from "./lib/FileBrowser/file_browser.svelte";
+  // @ts-ignore
   import Main from "./lib/main.svelte";
   import { invoke } from '@tauri-apps/api/tauri';
   import { listen } from '@tauri-apps/api/event';
@@ -9,10 +10,11 @@
 
 
   import { onDestroy, onMount } from 'svelte';
+  import Settings from './lib/Settings/Settings.svelte';
 
 
   onMount(()=>{
-  createAndIndexFiles()
+ 
  
    
 
@@ -26,20 +28,7 @@
  
 
 
-  let rootPath = '/Users/sky/Documents/GitHub';
-
-
-
-  async function createAndIndexFiles() {
-    try {
-      await invoke('create_and_index', { rootPath: rootPath });
-      console.log('Files indexed successfully.');
-    } catch (error) {
-      console.error('Error indexing files:', error);
-    }
-  }
-
-
+  
 
 
 
@@ -49,7 +38,9 @@
 
   const routes = {
     "/": Main , 
-    '/explore': FileBrowser
+    '/explore': FileBrowser ,
+    "/settings": Settings
+
 }
 
 </script>

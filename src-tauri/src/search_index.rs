@@ -5,6 +5,8 @@ use walkdir::WalkDir;
 use tauri::{AppHandle, Manager};
 use std::path::{PathBuf, Path};
 use std::fs;
+use tauri::api::path::app_data_dir; // Ensure you have imported app_data_dir
+
 
 
 
@@ -39,14 +41,20 @@ pub fn index_search(index: &Index, query_str: &str) -> TantivyResult<Vec<String>
 
 
 
-pub fn create_index() -> TantivyResult<Index> {
+pub fn create_index(app: &tauri::AppHandle) -> TantivyResult<Index> {
     let mut schema_builder = Schema::builder();
     schema_builder.add_text_field("title", TEXT | STORED);
     schema_builder.add_text_field("path", TEXT | STORED);
     schema_builder.add_bool_field("is_dir", STORED);
 
     let schema = schema_builder.build();
-    let index_path = PathBuf::from("/Users/sky/Documents/GitHub/learch/1");
+
+    // Get the app data directory
+    let app_data_path = app_data_dir(&app.config())
+        .expect("Failed to find app data directory");
+
+    // Create a 'index_data' directory inside the app data directory
+    let index_path = app_data_path.join("index_data");
 
     if !index_path.exists() {
         fs::create_dir_all(&index_path)?;
@@ -130,7 +138,7 @@ pub fn index_files(app: AppHandle, index: &Index, root_path: &str) -> TantivyRes
         let _ = index_writer.add_document(doc);
 
         indexed_files += 1;
-        if indexed_files % 100 == 0 { // Update progress every 100 files
+        if indexed_files % 999 == 0 { // Update progress every 100 files
             let _ = app.emit_all("index-progress", format!("{} / {}", indexed_files, total_files))
                 .map_err(|_| "Failed to emit progress event");
         }

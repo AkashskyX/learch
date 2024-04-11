@@ -5,7 +5,7 @@
 use std::str::from_utf8;
 
 use sysinfo::{System, SystemExt, DiskExt};
-use tantivy::{schema::*, Index, Document, Result as TantivyResult};
+use tantivy::Index ;
 
 use open;
 mod search_index;
@@ -62,6 +62,23 @@ fn open_file(path: String) -> Result<(), String> {
 }
 
 #[tauri::command]
+fn open_folder(path: String) -> Result<(), String> {
+    std::fs::canonicalize(&path)
+        .map_err(|e| e.to_string())
+        .and_then(|path| {
+            if path.is_dir() {
+                open::that(&path)
+                    .map(|_| ())  // Convert Ok(ExitStatus) to Ok(())
+                    .map_err(|e| e.to_string())
+            } else {
+                Err("Path is not a directory".into())
+            }
+        })
+}
+
+
+
+#[tauri::command]
 fn list_files_in_directory(path: String) -> Result<Vec<(String, bool)>, String> {
     use std::fs;
     use std::path::Path;
@@ -91,16 +108,43 @@ fn list_files_in_directory(path: String) -> Result<Vec<(String, bool)>, String> 
 
 #[tauri::command]
 async fn create_and_index(root_path: String , app: tauri::AppHandle) -> Result<(), String> {
-    let index = search_index::create_index().map_err(|e| e.to_string())?;
+    let index = search_index::create_index(&app).map_err(|e| e.to_string())?;
         // Call the function to add documents to the index
     search_index::index_files(app, &index, &root_path).map_err(|e| e.to_string())
 }
+
+#[tauri::command]
+fn get_index_path(app: tauri::AppHandle) -> Result<String, String> {
+    // Get the app data directory
+    let app_data_dir = tauri::api::path::app_data_dir(&app.config())
+        .ok_or("Unable to locate app data directory")?;
+
+    // Append 'index_data' to the path
+    let index_path = app_data_dir.join("index_data");
+
+    // Convert the path to a String and return it
+    Ok(index_path.to_string_lossy().into_owned())
+}
+
+#[tauri::command]
+fn delete_index_command(app: tauri::AppHandle) -> Result<(), String> {
+    // Logic to delete the index
+    // This usually involves deleting the files in the index directory
+    let app_data_dir = tauri::api::path::app_data_dir(&app.config())
+        .ok_or_else(|| "Unable to locate app data directory".to_string())?;
+    let index_path = app_data_dir.join("index_data");
+    if index_path.exists() {
+        std::fs::remove_dir_all(&index_path).map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
 
 
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_disk_info  , search_files , list_files_in_directory , open_file  , get_index_metadata,  create_and_index])
+        .invoke_handler(tauri::generate_handler![get_disk_info  , search_files , list_files_in_directory , open_file  ,open_folder , get_index_metadata,  create_and_index , get_index_path , delete_index_command])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

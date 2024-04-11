@@ -2,42 +2,45 @@
     import { onMount, onDestroy } from "svelte";
     import { listen } from "@tauri-apps/api/event";
     import { invoke } from "@tauri-apps/api/tauri";
+  import { slide } from "svelte/transition";
   
     /**
    * @type {Promise<import("@tauri-apps/api/event").UnlistenFn>}
    */
     let unlistenPromise;
-    let rootPath = "/Users/sky/Documents/GitHub";
+    let rootPath = "/Users";
     let indexedFiles = 0;
     let totalFiles = 1; // Initialize to 1 to avoid division by zero
     let currentDirectory = "";
     let percentage = 0;
-    let x = 69
+  
     
+    let visible =false
 
     
     
   
     async function startIndexing() {
+      visible =true
       try {
-        await invoke("create_and_index", { rootPath });
+        await invoke("create_and_index", { rootPath: rootPath });
         console.log("Files indexed successfully.");
+        setTimeout(()=>{
+          visible = false
+
+        } , 1000)
         currentDirectory = rootPath; // This will update the DOM
       } catch (error) {
         console.error("Error indexing files:", error);
+
+        visible = false
+
       }
     }
   
     onMount(() => {
-      setTimeout(() => {
-        startIndexing();
-      }, 5000); // Start indexing after a 5-second delay
-  
-
-      setTimeout(()=>{
-        x++
-      }, 200)
-     
+      startIndexing();
+      
        unlistenPromise = listen("index-progress", (event) => {
         const [indexedCountStr, totalCountStr] = event.payload.split(" / ");
         indexedFiles = parseInt(indexedCountStr, 10);
@@ -58,7 +61,9 @@
   
   
 
-  <div class="flex flex-col w-96 p-4 bg-gray-100 rounded-sm  space-y-2 font-mono">
+  {#if visible}
+
+  <div in:slide  out:slide class="flex flex-col w-96 p-4 bg-gray-100 rounded-sm  space-y-2 font-mono">
     <div class="flex justify-between items-center">
       <h2 class="text-lg  text-gray-700">indexing</h2>
       <span class="text-2xl  text-gray-800 ">{percentage.toFixed(1)}%</span>
@@ -70,3 +75,6 @@
     <div class="text-sm text-gray-600">{indexedFiles} / {totalFiles} done</div>
   </div>
   
+
+    
+  {/if}

@@ -2,15 +2,18 @@
   import { invoke } from "@tauri-apps/api/tauri";
   import { onMount } from "svelte";
   import Disk from "./Disk/disk.svelte";
+  import { fade } from 'svelte/transition';
+
   import FileBrowser from "./FileBrowser/file_browser.svelte";
-  import IndexProgress from "./Progress/Index_progress.svelte";
   import IndexInfo from "./Index/index_info.svelte";
   import SearchComponent from "./Search/search_component.svelte";
+  import Settings from "./Settings/Settings.svelte";
   /**
    * @type {any}
    */
   let indexMetadata;
   let x = 0;
+  let showSettings = true;
 
   let diskInfo = "";
   /**
@@ -56,32 +59,43 @@
     } catch (error) {
       console.error("Error fetching disk info:", error);
     }
+
+    setTimeout(()=>{
+
+      showSettings = false
+
+    } , 3000)
   });
 </script>
 
 <main class="h-screen font-mono">
   <div
-    class="flex flex-col items-start justify-start p-3 bg-white  text-black font-mono"
+    class="flex flex-col items-start justify-start p-3 bg-white text-black font-mono"
   >
     <h1 class="text-3xl mb-4 px-2">Learch</h1>
 
-    <div class=" flex flex-row">
-   
-
+    <div class="flex flex-col">
       <Disk />
-
-
-      <SearchComponent/>
-
-
-
+      <SearchComponent />
       
+      <!-- Button to toggle the Settings component visibility -->
+      <button
+        class="mb-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 transition duration-300 mt-10"
+        on:click={() => showSettings = !showSettings}
+      >
+        Settings
+      </button>
+
+      <!-- Conditionally render the Settings component based on showSettings variable -->
+      {#if showSettings}
+      <div transition:fade>
+        <Settings />
+      </div>
+    {/if}
+    
+
     <div class="absolute bottom-10">
-
-
-       <div class="mb-5">  <IndexInfo/> </div>
-        <IndexProgress/>
-    </div>
+      <!-- Possibly other content -->
     </div>
   </div>
 </main>
